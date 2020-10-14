@@ -2,57 +2,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>jsGist comments</title>
+    <title>jsGist runner</title>
     <style>
-:root {
-  --main-bg-color: #eee;
-  --main-fg-color: #000;
-}
-html {
-  background: var(--main-bg-color);
-  color: var(--main-fg-color);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --main-bg-color: #444;
-    --main-fg-color: #fff;
-  }
-}
     </style>
+    <script src="runner.js" type="module"></script>
   </head>
   <body>
-    <script src="comments.js" type="module"></script>
-    <div id="disqus_thread"></div>
-    <script>
-console.log('-cm.html start-')
-const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
-
-function createURL(base, params) {
-  const url = new URL(base);
-  const searchParams = new URLSearchParams(url.search);
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined) {
-      searchParams.delete(key);
-    } else {
-      searchParams.set(key, value);
-    }
-  }
-  url.search = searchParams.toString();
-  return url.href;
-}
-
-var disqus_config = function () {
-    this.page.url = createURL('https://jsgist.org/', {src: params.disqusId});
-    this.page.identifier = params.disqusId;
-    this.page.title = params.title;
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = 'https://jsgist.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-    </script>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   </body>
 </html>
