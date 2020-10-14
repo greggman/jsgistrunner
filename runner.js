@@ -65,7 +65,7 @@ ${mainCSS.content}
   <body>
 ${mainHTML.content}
   </body>
-  <${'script'}> type="module">
+  <${'script'} type="module">
 ${mainJS.content}
   </${'script'}>
 </html>
