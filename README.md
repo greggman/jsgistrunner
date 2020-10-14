@@ -1,1 +1,1 @@
-just a target for jsgist comments for security issues
+just a target for jsgist for security issues.
