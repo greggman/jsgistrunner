@@ -25,12 +25,12 @@
       const mainJS = getOrFind(files, 'index.js', 'js', 'js', 'javascript');
       const mainCSS = getOrFind(files, 'index.css', 'css');
       const style = document.createElement('style');
-      style.textContent = mainCSS;
+      style.textContent = mainCSS.content;
       (document.head || document.body || document.documentElement).appendChild(style);
-      document.body.innerHTML = mainHTML;
+      document.body.innerHTML = mainHTML.content;
       const script = document.createElement('script');
       script.type = 'module';
-      script.text = mainJS;
+      script.text = mainJS.content;
       document.body.appendChild(script);
     },
   };
