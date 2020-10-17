@@ -2,6 +2,7 @@
   const log = () => {};
   //const log = console.log.bind(console);
 
+  let iframe;
 
   async function startServiceWorker() {
     // await waitForLoad();
@@ -102,6 +103,7 @@ iframe {
     const blob = new Blob([html], {type: 'text/html'});
     document.body.appendChild(iframe);
     iframe.src = URL.createObjectURL(blob);
+    return iframe;
   }
 
   function insertInServiceWorker(mainHTML, mainJS, mainCSS) {
@@ -111,6 +113,7 @@ iframe {
     cacheFile('/user-jsgist.html', 'text/html', html);
     document.body.appendChild(iframe);
     iframe.src = '/user-jsgist.html';
+    return iframe;
   }
 
   const handlers = {
@@ -125,13 +128,13 @@ iframe {
         if (worker) {
           // Using a service worker allows the URL for the loaded
           // page to be constant so the debugger is happy.
-          insertInServiceWorker(mainHTML, mainJS, mainCSS);
+          iframe = insertInServiceWorker(mainHTML, mainJS, mainCSS);
         } else {
           // if we use a blob it's hard to debug because the blob
           // will be a different URL every reload which means
           // the debugger will assume it's a different page
           // and not apply breakpoints etc...
-          insertInBlob(mainHTML, mainJS, mainCSS);
+          iframe = insertInBlob(mainHTML, mainJS, mainCSS);
         }
       }
     },
