@@ -1,6 +1,8 @@
 (async function() {
   const log = () => {};
   //const log = console.log.bind(console);
+  const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+  const isDevelopment = params.development;
 
   let iframe;
 
@@ -52,14 +54,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>jsGist runner frame</title>
+<!-- jsgist-section[${encodeURIComponent(mainCSS.name)}] -->
     <style>
 ${mainCSS.content}
     </style>
-    <script src="https://jsgistrunner.devcomments.org/helper.js" type="module"></script>
+    <!--
+      this can not be type="module" because they are always deferred
+      and we need this to catch errors in the html if the user included
+      any code there
+    -->
+    <script src="${isDevelopment ? 'http://localhost:8081' : 'https://jsgistrunner.devcomments.org'}/helper.js"></script>
   </head>
+<!-- jsgist-section[${encodeURIComponent(mainHTML.name)}] -->
   <body>
 ${mainHTML.content}
   </body>
+<!-- jsgist-section[${encodeURIComponent(mainJS.name)}] -->
   <${'script'} type="module">
 ${mainJS.content}
   </${'script'}>
@@ -85,6 +95,27 @@ iframe {
     document.head.appendChild(style);
   }
 
+  // the starting lineNo of each section stored bottom to top
+  let sections = [];
+  function registerSections(html) {
+    sections = [...html.matchAll(/<!-- jsgist-section\[([^\]]+)\] -->/g)].map(m => {
+      const name = decodeURIComponent(m[1]);
+      return {
+        name,
+        lineNo: html.substr(0, m.index).split('\n').length + 1,
+      };
+    }).reverse();
+  }
+
+  function lineNumberToSectionLineNumber(lineNo) {
+    for (const section of sections) {
+      if (lineNo >= section.lineNo) {
+        return {section: section.name, lineNo: lineNo - section.lineNo};
+      }
+    }
+    return {lineNo};
+  }
+
   function insertInline(mainHTML, mainJS, mainCSS) {
     const style = document.createElement('style');
     style.textContent = mainCSS.content;
@@ -100,6 +131,7 @@ iframe {
     applyCSSToSelfToRunContentInIFrame();
     const iframe = document.createElement('iframe');
     const html = makePageHTML(mainHTML, mainJS, mainCSS);
+    registerSections(html);
     const blob = new Blob([html], {type: 'text/html'});
     document.body.appendChild(iframe);
     iframe.src = URL.createObjectURL(blob);
@@ -110,6 +142,7 @@ iframe {
     applyCSSToSelfToRunContentInIFrame();
     const iframe = document.createElement('iframe');
     const html = makePageHTML(mainHTML, mainJS, mainCSS);
+    registerSections(html);
     cacheFile('/user-jsgist.html', 'text/html', html);
     document.body.appendChild(iframe);
     iframe.src = '/user-jsgist.html';
@@ -117,6 +150,22 @@ iframe {
   }
 
   const handlers = {
+    jsError(data) {
+      const {msg, url, lineNo, colNo} = data;
+      const {section, lineNo: fixedLineNo} = url.endsWith('user-jsgist.html')
+         ? lineNumberToSectionLineNumber(lineNo)
+         : {lineNo};
+      window.parent.postMessage({
+        type: 'jsError',
+        data: {
+          msg,
+          url,
+          lineNo: fixedLineNo,
+          colNo,
+          section,
+        },
+      }, '*');
+    },
     run(data) {
       const files = data.files;
       const mainHTML = getOrFind(files, 'index.html', 'html');
