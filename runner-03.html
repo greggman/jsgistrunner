@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>jsGist runner</title>
+    <style></style>
+    <script>
+      const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+      import(params.url);
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
