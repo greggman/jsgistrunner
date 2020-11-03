@@ -5,8 +5,14 @@
     <title>jsGist runner</title>
     <style></style>
     <script>
-      const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
-      import(params.url);
+    const {url} = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+    if (url.startsWith('https://jsgist.org/') ||
+        url.startsWith('https://gmantest.ngrok.io/') ||
+        url.startsWith('http://localhost/')) {
+      import(url);
+    } else {
+      throw new Error('unsupported url `${url}');
+    }
     </script>
   </head>
   <body>
