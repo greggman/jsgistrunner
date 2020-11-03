@@ -8,10 +8,10 @@
     const {url} = Object.fromEntries(new URLSearchParams(window.location.search).entries());
     if (url.startsWith('https://jsgist.org/') ||
         url.startsWith('https://gmantest.ngrok.io/') ||
-        url.startsWith('http://localhost/')) {
+        url.startsWith('http://localhost:')) {
       import(url);
     } else {
-      throw new Error('unsupported url `${url}');
+      throw new Error(`unsupported url ${url}`);
     }
     </script>
   </head>
