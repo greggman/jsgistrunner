@@ -1,5 +1,10 @@
-const log = () => {};
-//const log = console.log.bind(console);
+let log;
+function setLog(verbose) {
+  log = verbose
+     ? console.log.bind(console)
+     : () => {};
+}
+setLog(false);
 
 log('sw: start');
 
@@ -38,6 +43,12 @@ const handlers = {
     log('sw: caching:', pathname);
     pathnameToContentMap.set(pathname, {content, type});
   },
+  setOptions(data) {
+    const {verbose} = data;
+    if (verbose !== undefined) {
+      setLog(verbose);
+    }
+  }
 };
 
 self.addEventListener('message', (event) => {
